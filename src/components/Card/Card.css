@@ -1,0 +1,19 @@
+.card {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.card.flipped {
+    background-color: #4CAF50;
+    color: white;
+}
