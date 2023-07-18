@@ -3,7 +3,7 @@ import './Title.css';
 
 const Title = ({ children }) => {
     return (
-        <h1 className="memory-title">{children}</h1>
+        <h1 className="title">{children}</h1>
     );
 };
 
