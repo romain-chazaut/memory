@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from './components/Button/Button';
 import Title from './components/Title/Title';
 import Card from './components/Card/Card';
+import ScoreBoard from './components/ScoreBoard/ScoreBoard';
+import PlayerForm from './components/PlayerForm/PlayerForm';
 import './App.css';
 
 function generateCards() {
@@ -16,13 +18,57 @@ function generateCards() {
   return cards;
 }
 
+function useTimer(initialState = 5) {
+  const [timer, setTimer] = useState(initialState);
+  const countRef = useRef(null);
+
+  const stopTimer = () => {
+    clearInterval(countRef.current);
+  };
+
+  const startTimer = () => {
+    countRef.current = setInterval(() => {
+      setTimer((timer) => timer - 1);
+    }, 1000);
+  };
+
+  const resetTimer = () => {
+    stopTimer();
+    setTimer(initialState);
+  };
+
+  useEffect(() => {
+    startTimer();
+    return () => stopTimer();
+  }, []);
+
+  useEffect(() => {
+    if (timer === 0) {
+      stopTimer();
+    }
+  }, [timer]);
+
+  return { timer, startTimer, stopTimer, resetTimer };
+}
+
 function App() {
   const [cards, setCards] = useState(generateCards());
   const [selectedCards, setSelectedCards] = useState([]);
   const [message, setMessage] = useState('Bienvenue au jeu de memory!');
+  const [turns, setTurns] = useState(0);
+  const [scoreBoard, setScoreBoard] = useState(JSON.parse(localStorage.getItem('scoreBoard')) || []);
+  const { timer, resetTimer } = useTimer();
+  const [playerName, setPlayerName] = useState(localStorage.getItem('playerName') || '');
+
+  const handleNewPlayerName = (newPlayerName) => {
+    setPlayerName(newPlayerName);
+  };
 
   useEffect(() => {
     if (selectedCards.length === 2) {
+      setTurns(turns => turns + 1); // Increase turns count
+      resetTimer();
+
       const firstCard = cards[selectedCards[0]];
       const secondCard = cards[selectedCards[1]];
 
@@ -35,9 +81,11 @@ function App() {
           )
         );
 
-        // Check if all pairs have been found
         if (cards.every(card => card.canFlip === false)) {
           setMessage('Félicitations ! Vous avez gagné !');
+          const newScoreBoard = [...scoreBoard, turns + 1];
+          setScoreBoard(newScoreBoard);
+          localStorage.setItem('scoreBoard', JSON.stringify(newScoreBoard));
         }
       } else {
         setMessage('Oops! Essayez à nouveau.');
@@ -53,18 +101,25 @@ function App() {
 
       setSelectedCards([]);
     }
-  }, [selectedCards, cards]);
+  }, [selectedCards, cards, scoreBoard, turns, resetTimer]);
 
   const handleNewGame = () => {
     setMessage('Bienvenue au jeu de memory!');
     setCards(generateCards());
     setSelectedCards([]);
+    setTurns(0);
+    resetTimer();
   };
 
   const handleCardClick = (index) => {
     if (!cards[index].canFlip || selectedCards.length === 2) {
       return;
     }
+
+    // Start timer on the first card click
+    // if (selectedCards.length === 0) {
+    //   startTimer();
+    // }
 
     setCards(cards =>
       cards.map((card, cardIndex) => 
@@ -77,19 +132,29 @@ function App() {
   return (
     <div className="memory-game">
       <Title>Mon jeu Memory</Title>
-      <div className="button-container">
-        <Button onClick={handleNewGame}>Nouvelle partie</Button>
-      </div>
-      <div className="cards-container">
-        {cards.map((card, index) => (
-          <div className="card-container" key={index}>
-            <Card card={card} onCardClicked={() => handleCardClick(index)} />
+      {!playerName ? (
+        <PlayerForm onPlayerNameSubmit={handleNewPlayerName} />
+      ) : (
+        <>
+          <h2>Bienvenue, {playerName}!</h2>
+          <div className="button-container">
+            <Button onClick={handleNewGame}>Nouvelle partie</Button>
           </div>
-        ))}
-      </div>
-      <div className="message-container">
-        <p>{message}</p>
-      </div>
+          <div className="cards-container">
+            {cards.map((card, index) => (
+              <div className="card-container" key={index}>
+                <Card card={card} onCardClicked={() => handleCardClick(index)} />
+              </div>
+            ))}
+          </div>
+          <div className="message-container">
+            <p>{message}</p>
+            <p>Nombre de tours: {turns}</p>
+            <p>Temps restant: {timer}</p>
+          </div>
+          <ScoreBoard scoreBoard={scoreBoard} />
+        </>
+      )}
     </div>
   );
 }
