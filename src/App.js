@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Button from './components/Button/Button';
 import Title from './components/Title/Title';
 import Card from './components/Card/Card';
+import Register from './components/Register/Register';
+import Leaderboard from './components/Leaderboard/Leaderboard';
 import './App.css';
 
 function generateCards() {
@@ -21,13 +23,8 @@ function App() {
   const [selectedCards, setSelectedCards] = useState([]);
   const [message, setMessage] = useState('Bienvenue au jeu de memory!');
   const [gameOver, setGameOver] = useState(false);
-
-  useEffect(() => {
-    if (cards.every(card => !card.canFlip)) {
-      setMessage('Félicitations ! Vous avez gagné !');
-      setGameOver(true);
-    }
-  }, [cards]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [moveCount, setMoveCount] = useState(0);
 
   useEffect(() => {
     if (selectedCards.length === 2) {
@@ -42,6 +39,15 @@ function App() {
             index === selectedCards[0] || index === selectedCards[1] ? { ...card, canFlip: false } : card
           )
         );
+        
+        if (cards.every(card => card.isFlipped === true)) {
+          setMessage('Félicitations ! Vous avez gagné !');
+          setGameOver(true);
+
+          let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || "[]");
+          leaderboard.push({ user: currentUser, score: moveCount });
+          localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        }
       } else {
         setMessage('Oops! Essayez à nouveau.');
 
@@ -56,13 +62,14 @@ function App() {
 
       setSelectedCards([]);
     }
-  }, [selectedCards, cards]);
+  }, [selectedCards, cards, currentUser, moveCount]);
 
   const handleNewGame = () => {
     setMessage('Bienvenue au jeu de memory!');
     setCards(generateCards());
     setSelectedCards([]);
     setGameOver(false);
+    setMoveCount(0);
   };
 
   const handleCardClick = (index) => {
@@ -76,7 +83,15 @@ function App() {
       )
     );
     setSelectedCards(prev => [...prev, index]);
+
+    if (selectedCards.length === 1) {
+      setMoveCount(moveCount + 1);
+    }
   };
+
+  if (!currentUser) {
+    return <Register onRegister={setCurrentUser} />;
+  }
 
   return (
     <div className="memory-game">
@@ -94,6 +109,7 @@ function App() {
       <div className="message-container">
         <p>{message}</p>
         {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
+        {gameOver && <Leaderboard currentUser={currentUser} moveCount={moveCount} />}
       </div>
     </div>
   );

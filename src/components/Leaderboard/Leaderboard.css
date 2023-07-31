@@ -1,0 +1,13 @@
+.leaderboard {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.leaderboard table {
+  margin: 0 auto;
+  width: auto;
+}
+
+.leaderboard th, .leaderboard td {
+  padding: 5px 10px;
+}
