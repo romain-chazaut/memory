@@ -20,6 +20,14 @@ function App() {
   const [cards, setCards] = useState(generateCards());
   const [selectedCards, setSelectedCards] = useState([]);
   const [message, setMessage] = useState('Bienvenue au jeu de memory!');
+  const [gameOver, setGameOver] = useState(false);
+
+  useEffect(() => {
+    if (cards.every(card => !card.canFlip)) {
+      setMessage('Félicitations ! Vous avez gagné !');
+      setGameOver(true);
+    }
+  }, [cards]);
 
   useEffect(() => {
     if (selectedCards.length === 2) {
@@ -34,11 +42,6 @@ function App() {
             index === selectedCards[0] || index === selectedCards[1] ? { ...card, canFlip: false } : card
           )
         );
-
-        // Check if all pairs have been found
-        if (cards.every(card => card.canFlip === false)) {
-          setMessage('Félicitations ! Vous avez gagné !');
-        }
       } else {
         setMessage('Oops! Essayez à nouveau.');
 
@@ -59,6 +62,7 @@ function App() {
     setMessage('Bienvenue au jeu de memory!');
     setCards(generateCards());
     setSelectedCards([]);
+    setGameOver(false);
   };
 
   const handleCardClick = (index) => {
@@ -89,6 +93,7 @@ function App() {
       </div>
       <div className="message-container">
         <p>{message}</p>
+        {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
       </div>
     </div>
   );
