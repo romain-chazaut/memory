@@ -7,9 +7,9 @@ import Leaderboard from './components/Leaderboard/Leaderboard';
 import './App.css';
 
 function generateCards() {
-  const values = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const values = ['A.png', 'B.png', 'C.png', 'D.png', 'E.png', 'F.png'];
   let cards = values.concat(values).map(value => ({ value, isFlipped: false, canFlip: true }));
-  
+
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
@@ -95,21 +95,25 @@ function App() {
 
   return (
     <div className="memory-game">
-      <Title>Mon jeu Memory</Title>
-      <div className="button-container">
-        <Button onClick={handleNewGame}>Nouvelle partie</Button>
+      <div className="game-board">
+        <Title>Mon jeu Memory</Title>
+        <div className="cards-container">
+          {cards.map((card, index) => (
+            <div className="card-container" key={index}>
+              <Card card={card} onCardClicked={() => handleCardClick(index)} />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="cards-container">
-        {cards.map((card, index) => (
-          <div className="card-container" key={index}>
-            <Card card={card} onCardClicked={() => handleCardClick(index)} />
-          </div>
-        ))}
-      </div>
-      <div className="message-container">
-        <p>{message}</p>
-        {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
-        {gameOver && <Leaderboard currentUser={currentUser} moveCount={moveCount} />}
+      <div className="game-info">
+        <div className="button-container">
+          <Button onClick={handleNewGame}>Nouvelle partie</Button>
+        </div>
+        <div className="message-container">
+          <p>{message}</p>
+          {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
+          {gameOver && <Leaderboard currentUser={currentUser} moveCount={moveCount} />}
+        </div>
       </div>
     </div>
   );
