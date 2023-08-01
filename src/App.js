@@ -8,8 +8,14 @@ import './App.css';
 
 function generateCards() {
   const values = ['A', 'B', 'C', 'D', 'E', 'F'];
-  let cards = values.concat(values).map(value => ({ value, isFlipped: false, canFlip: true }));
-  
+  let cards = values.concat(values).map(value => ({ 
+    value, 
+    isFlipped: false, 
+    canFlip: true, 
+    backImage: process.env.PUBLIC_URL + '/images/Fnac.jpg', 
+    frontImage: process.env.PUBLIC_URL + `/images/${value}.jpg` 
+  }));
+
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
@@ -34,14 +40,13 @@ function App() {
       if (firstCard.value === secondCard.value) {
         setMessage('C\'est une paire !');
 
-        setCards(cards => 
-          cards.map((card, index) => 
-            index === selectedCards[0] || index === selectedCards[1] ? { ...card, canFlip: false } : card
-          )
+        const newCards = cards.map((card, index) => 
+          index === selectedCards[0] || index === selectedCards[1] ? { ...card, canFlip: false } : card
         );
-        
-        if (cards.every(card => card.isFlipped === true)) {
-          setMessage('Félicitations ! Vous avez gagné !');
+        setCards(newCards);
+
+        if (newCards.every(card => card.canFlip === false)) {
+          setMessage(`Félicitations ${currentUser}! Vous avez gagné avec ${moveCount} mouvements!`);
           setGameOver(true);
 
           let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || "[]");
@@ -65,11 +70,13 @@ function App() {
   }, [selectedCards, cards, currentUser, moveCount]);
 
   const handleNewGame = () => {
-    setMessage('Bienvenue au jeu de memory!');
-    setCards(generateCards());
+    console.log('New game button clicked');
+    const newCards = generateCards();
+    setCards(newCards.map(card => ({ ...card, isFlipped: false, canFlip: true })));
     setSelectedCards([]);
     setGameOver(false);
     setMoveCount(0);
+    setMessage('Bienvenue au jeu de memory!');
   };
 
   const handleCardClick = (index) => {
@@ -95,21 +102,25 @@ function App() {
 
   return (
     <div className="memory-game">
-      <Title>Mon jeu Memory</Title>
-      <div className="button-container">
-        <Button onClick={handleNewGame}>Nouvelle partie</Button>
+      <div className="game-container">
+        <Title>Mon jeu Memory</Title>
+        <div className="button-container">
+          <Button onClick={handleNewGame}>Nouvelle partie</Button>
+        </div>
+        <div className="cards-container">
+          {cards.map((card, index) => (
+            <div className="card-container" key={index}>
+              <Card card={card} onCardClicked={() => handleCardClick(index)} />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="cards-container">
-        {cards.map((card, index) => (
-          <div className="card-container" key={index}>
-            <Card card={card} onCardClicked={() => handleCardClick(index)} />
-          </div>
-        ))}
-      </div>
-      <div className="message-container">
-        <p>{message}</p>
-        {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
-        {gameOver && <Leaderboard currentUser={currentUser} moveCount={moveCount} />}
+      <div className="scoreboard-container">
+        <div className="message-container">
+          <p>{message}</p>
+          {gameOver && <h2 className="victory-message">VICTOIRE!</h2>}
+          {gameOver && <Leaderboard currentUser={currentUser} moveCount={moveCount} />}
+        </div>
       </div>
     </div>
   );

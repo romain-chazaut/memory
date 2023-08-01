@@ -1,34 +1,95 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+  font-family: Arial, sans-serif;
+}
+
 .memory-game {
-    display: flex;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin: 20px;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1 0 400px;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.button-container {
+  margin-bottom: 20px;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.card-container > div {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+}
+
+.scoreboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1 0 300px;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.message-container {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.victory-message {
+  font-size: 2em;
+  color: #4caf50;
+}
+
+@media screen and (max-width: 800px) {
+  .memory-game {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: Arial, sans-serif;
+    align-items: stretch;
+    max-width: 400px;
   }
-  
-  .button-container {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+
+  .game-container, .scoreboard-container {
+    flex: 1 0 auto;
+    margin: 10px 0;
   }
-  
-  .cards-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .card-container {
-    width: 100px;
-    height: 150px;
-  }
-  
-  .message-container {
-    margin-top: 20px;
-  }
-  
-  .victory-message {
-    font-size: 3em;
-    color: red;
-  }
+}
